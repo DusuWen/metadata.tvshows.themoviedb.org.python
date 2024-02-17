@@ -37,7 +37,7 @@ HEADERS = (
 )
 api_utils.set_headers(dict(HEADERS))
 
-TMDB_PARAMS = {'api_key': settings.TMDB_CLOWNCAR, 'language': settings.LANG}
+TMDB_PARAMS = {'api_key': settings.TMDB_CLOWNCAR, 'language': 'zh-CN'}
 BASE_URL = 'https://api.themoviedb.org/3/{}'
 EPISODE_GROUP_URL = BASE_URL.format('tv/episode_group/{}')
 SEARCH_URL = BASE_URL.format('search/tv')
