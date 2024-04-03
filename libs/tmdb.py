@@ -37,7 +37,7 @@ HEADERS = (
 )
 api_utils.set_headers(dict(HEADERS))
 
-TMDB_PARAMS = {'api_key': settings.TMDB_CLOWNCAR, 'language': 'zh-CN'}
+TMDB_PARAMS = {'api_key': settings.TMDB_CLOWNCAR, 'language': settings.LANG}
 BASE_URL = 'https://api.themoviedb.org/3/{}'
 EPISODE_GROUP_URL = BASE_URL.format('tv/episode_group/{}')
 SEARCH_URL = BASE_URL.format('search/tv')
@@ -150,8 +150,8 @@ def load_show_info(show_id, ep_grouping=None, named_seasons=None):
         show_info = api_utils.load_info(show_url, params=params, verboselog=settings.VERBOSELOG)
         if show_info is None:
             return None
-        if show_info['overview'] == '' and settings.LANG != 'en-US':
-            params['language'] = 'en-US'
+        if show_info['overview'] == '' and settings.LANG != 'zh-CN':
+            params['language'] = 'zh-CN'
             del params['append_to_response']
             show_info_backup = api_utils.load_info(show_url, params=params, verboselog=settings.VERBOSELOG)
             if show_info_backup is not None:
@@ -162,8 +162,8 @@ def load_show_info(show_id, ep_grouping=None, named_seasons=None):
         for season in show_info.get('seasons', []):
             season_url = SEASON_URL.format(show_id, season['season_number'])
             season_info = api_utils.load_info(season_url, params=params, default={}, verboselog=settings.VERBOSELOG)
-            if (season_info['overview'] == '' or season_info['name'].lower().startswith('season')) and settings.LANG != 'en-US':
-                params['language'] = 'en-US'
+            if (season_info['overview'] == '' or season_info['name'].lower().startswith('season')) and settings.LANG != 'zh-CN':
+                params['language'] = 'zh-CN'
                 season_info_backup = api_utils.load_info(season_url, params=params, default={}, verboselog=settings.VERBOSELOG)
                 params['language'] = settings.LANG
                 if season_info['overview'] == '':
@@ -234,8 +234,8 @@ def load_episode_info(show_id, episode_id):
             bad_return_name = True
         if ep_return.get('overview', '') == '':
             bad_return_overview = True
-        if (bad_return_overview or bad_return_name) and settings.LANG != 'en-US':
-            params['language'] = 'en-US'
+        if (bad_return_overview or bad_return_name) and settings.LANG != 'zh-CN':
+            params['language'] = 'zh-CN'
             del params['append_to_response']
             ep_return_backup = api_utils.load_info(ep_url, params=params, verboselog=settings.VERBOSELOG)
             if ep_return_backup is not None:
