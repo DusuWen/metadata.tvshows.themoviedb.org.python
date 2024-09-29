@@ -23,6 +23,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import sys, urlparse
+import urllib
 import xbmcgui, xbmcplugin
 from urllib import quote
 from urllib import urlencode, quote, unquote
@@ -209,6 +210,8 @@ def router(paramstring):
         pass
 
     params = dict(urlparse.parse_qsl(paramstring))
+    if 'title' in params:
+        params['title'] = urllib.unquote(params['title']).decode('utf-8')
     logger.debug('Called addon with params: {}'.format(sys.argv))
     if params['action'] == 'find':
         logger.debug('performing find action')
