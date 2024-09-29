@@ -183,13 +183,15 @@ def router(paramstring):
     :param paramstring: url-encoded query string
     :raises RuntimeError: on unknown call action
     """
+    logger.debug('Original paramstring: {}'.format(paramstring))
     # 确保 paramstring 是 utf-8 编码
     try:
         paramstring = paramstring.decode('utf-8')
+        logger.debug('Decoded paramstring: {}'.format(paramstring))
     except AttributeError:
         # 如果 paramstring 已经是 str 类型，不需要解码
         pass
-    
+
     params = dict(urlparse.parse_qsl(paramstring))
     logger.debug('Called addon with params: {}'.format(sys.argv))
     if params['action'] == 'find':
