@@ -38,35 +38,39 @@ def set_headers(headers):
     HEADERS.update(headers)
 
 
-def load_info(url, params=None, default=None, resp_type = 'json', verboselog=False):
-    # type: (Text, Optional[Dict[Text, Union[Text, List[Text]]]]) -> Union[dict, list]
-    """
-    Load info from external api
-
-    :param url: API endpoint URL
-    :param params: URL query params
-    :default: object to return if there is an error
-    :resp_type: what to return to the calling function
-    :return: API response or default on error
-    """
+def load_info(url, params=None, default=None, resp_type='json', verboselog=False):
     if params:
         url = url + '?' + urlencode(params)
     logger.debug('Calling URL "{}"'.format(url))
     req = Request(url, headers=HEADERS)
     try:
-        response = urlopen(req)
+        response = urlopen(req, timeout=10)  # 设置超时
     except URLError as e:
         if hasattr(e, 'reason'):
-            logger.debug('failed to reach the remote site\nReason: {}'.format(e.reason))
+            logger.debug('Failed to reach the remote site\nReason: {}'.format(e.reason))
         elif hasattr(e, 'code'):
-            logger.debug('remote site unable to fulfill the request\nError code: {}'.format(e.code))
-        response = None
-    if response is None:
-        resp = default
-    elif resp_type.lower() == 'json':
-        resp = json.loads(response.read().decode('utf-8'))
+            logger.debug('Remote site unable to fulfill the request\nError code: {}'.format(e.code))
+        return default  # 直接返回默认值
+
+    if response is None or response.readable() is False:
+        return default
+
+    # 检查 Content-Type 以确定编码
+    content_type = response.headers.get_content_type()
+    encoding = 'utf-8'  # 默认编码
+    if 'charset=' in content_type:
+        encoding = content_type.split('charset=')[-1]
+
+    if resp_type.lower() == 'json':
+        try:
+            resp = json.loads(response.read().decode(encoding))
+        except ValueError as e:
+            logger.debug('JSON decode error: {}'.format(e))
+            return default
     else:
-        resp = response.read().decode('utf-8')
+        resp = response.read().decode(encoding)
+
     if verboselog:
-        logger.debug('the api response:\n{}'.format(pformat(resp)))
+        logger.debug('The API response:\n{}'.format(pformat(resp)))
     return resp
+
