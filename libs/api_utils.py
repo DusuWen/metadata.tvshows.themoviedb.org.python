@@ -44,7 +44,7 @@ def load_info(url, params=None, default=None, resp_type='json', verboselog=False
     logger.debug('Calling URL "{}"'.format(url))
     req = Request(url, headers=HEADERS)
     try:
-        response = urlopen(req, timeout=10)  # 设置超时
+        response = urlopen(req, timeout=1000)  # 设置超时
     except URLError as e:
         if hasattr(e, 'reason'):
             logger.debug('Failed to reach the remote site\nReason: {}'.format(e.reason))
