@@ -57,7 +57,7 @@ def find_show(title, year=None):
     except Exception as e:
         logger.error('Error searching for show: {}'.format(e))
         return  # 或者其他处理
-    
+
     for search_result in search_results:
         show_name = search_result['name']
         if safe_get(search_result, 'first_air_date') is not None:
@@ -212,6 +212,7 @@ def router(paramstring):
     logger.debug('Called addon with params: {}'.format(sys.argv))
     if params['action'] == 'find':
         logger.debug('performing find action')
+        logger.debug('params title: {}'.format(params['title']))
         find_show(params['title'], params.get('year'))
     elif params['action'].lower() == 'nfourl':
         logger.debug('performing nfourl action')
