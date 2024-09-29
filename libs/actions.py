@@ -203,10 +203,14 @@ def router(paramstring):
     logger.debug('Original paramstring: {}'.format(paramstring))
 
     params = dict(urlparse.parse_qsl(paramstring))
-    title = params['title']
-    if isinstance(title, str):  # 在 Python 2 中，str 是字节字符串
-        title = title.decode('utf-8')
-        params["title"] = title
+    if 'title' in params:
+        title = params['title']
+        if isinstance(title, str):  # 在 Python 2 中，str 是字节字符串
+            title = title.decode('utf-8')
+            params["title"] = title
+        logger.debug('params title: {}'.format(params['title']))
+
+    logger.debug('Parsed params: {}'.format(params))
 
     if params['action'] == 'find':
         logger.debug('performing find action')
