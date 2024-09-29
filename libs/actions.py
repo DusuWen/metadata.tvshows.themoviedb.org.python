@@ -201,23 +201,11 @@ def router(paramstring):
     :raises RuntimeError: on unknown call action
     """
     logger.debug('Original paramstring: {}'.format(paramstring))
-    # 确保 paramstring 是 utf-8 编码
-    try:
-        paramstring = paramstring.decode('utf-8')
-        logger.debug('Decoded paramstring: {}'.format(paramstring))
-    except AttributeError:
-        # 如果 paramstring 已经是 str 类型，不需要解码
-        pass
 
     params = dict(urlparse.parse_qsl(paramstring))
-    if 'title' in params:
-        title_encoded = params['title']
-        logger.debug('params title title_encoded: {}'.format(title_encoded))
-        # 先解码，然后再转为Unicode
-        title_decoded = urllib.unquote(title_encoded).decode('utf-8')
-        logger.debug('params title title_decoded: {}'.format(title_decoded))
-        params['title'] = title_decoded
-    logger.debug('Called addon with params: {}'.format(sys.argv))
+    title = params['title']
+    if isinstance(title, str):  # 在 Python 2 中，str 是字节字符串
+        title = title.decode('utf-8')
     if params['action'] == 'find':
         logger.debug('performing find action')
         logger.debug('params title: {}'.format(params['title']))
