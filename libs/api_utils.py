@@ -40,23 +40,23 @@ def set_headers(headers):
 
 def load_info(url, params=None, default=None, resp_type='json', verboselog=False):
     if params:
-        url = url + '?' + urlencode(params)
+        url = url + '?' + urllib.urlencode(params)  # 使用 urllib 的 urlencode
     logger.debug('Calling URL "{}"'.format(url))
-    req = Request(url, headers=HEADERS)
+    req = urllib2.Request(url, headers=HEADERS)
     try:
-        response = urlopen(req, timeout=1000)  # 设置超时
-    except URLError as e:
+        response = urllib2.urlopen(req, timeout=10)  # 设置超时为 1 秒
+    except urllib2.URLError as e:
         if hasattr(e, 'reason'):
             logger.debug('Failed to reach the remote site\nReason: {}'.format(e.reason))
         elif hasattr(e, 'code'):
             logger.debug('Remote site unable to fulfill the request\nError code: {}'.format(e.code))
         return default  # 直接返回默认值
 
-    if response is None or response.readable() is False:
+    if response is None:
         return default
 
     # 检查 Content-Type 以确定编码
-    content_type = response.headers.get_content_type()
+    content_type = response.headers.get('Content-Type', '')
     encoding = 'utf-8'  # 默认编码
     if 'charset=' in content_type:
         encoding = content_type.split('charset=')[-1]
@@ -71,6 +71,8 @@ def load_info(url, params=None, default=None, resp_type='json', verboselog=False
         resp = response.read().decode(encoding)
 
     if verboselog:
-        logger.debug('The API response:\n{}'.format(pformat(resp)))
+        logger.debug('The API response:\n{}'.format(pprint.pformat(resp)))  # 使用 pprint.pformat 进行格式化
+
     return resp
+
 
