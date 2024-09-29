@@ -211,7 +211,12 @@ def router(paramstring):
 
     params = dict(urlparse.parse_qsl(paramstring))
     if 'title' in params:
-        params['title'] = urllib.unquote(params['title']).decode('utf-8')
+        title_encoded = params['title']
+        logger.debug('params title title_encoded: {}'.format(title_encoded))
+        # 先解码，然后再转为Unicode
+        title_decoded = urllib.unquote(title_encoded).decode('utf-8')
+        logger.debug('params title title_decoded: {}'.format(title_decoded))
+        params['title'] = title_decoded
     logger.debug('Called addon with params: {}'.format(sys.argv))
     if params['action'] == 'find':
         logger.debug('performing find action')
