@@ -24,6 +24,7 @@ from __future__ import absolute_import, unicode_literals
 
 import sys, urlparse
 import xbmcgui, xbmcplugin
+from urllib import quote
 from urllib import urlencode, quote, unquote
 from . import tmdb, data_utils
 from .utils import logger, safe_get
@@ -41,7 +42,18 @@ def find_show(title, year=None):
     if not isinstance(title, unicode):
         title = title.decode('utf-8')
     logger.debug('Searching for TV show {} ({})'.format(title, year))
-    search_results = tmdb.search_show(title, year)
+        # 检查是否已经URL编码
+    if '%' in title:
+        encoded_title = title  # 已编码
+    else:
+        encoded_title = quote(title.encode('utf-8'))  # 编码
+
+    try:
+        search_results = tmdb.search_show(encoded_title, year)
+    except Exception as e:
+        logger.error('Error searching for show: {}'.format(e))
+        return  # 或者其他处理
+    
     for search_result in search_results:
         show_name = search_result['name']
         if safe_get(search_result, 'first_air_date') is not None:
