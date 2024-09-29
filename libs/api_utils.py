@@ -20,11 +20,11 @@
 from __future__ import absolute_import, unicode_literals
 
 import json
-from urllib2 import Request, urlopen
-from urllib2 import URLError
+import urllib2
 from urllib import urlencode
 from pprint import pformat
 from .utils import logger
+
 try:
     from typing import Text, Optional, Union, List, Dict, Any  # pylint: disable=unused-import
     InfoType = Dict[Text, Any]  # pylint: disable=invalid-name
@@ -33,27 +33,23 @@ except ImportError:
 
 HEADERS = {}
 
-
 def set_headers(headers):
     HEADERS.update(headers)
 
-
 def load_info(url, params=None, default=None, resp_type='json', verboselog=False):
     if params:
-        url = url + '?' + urllib.urlencode(params)  # 使用 urllib 的 urlencode
+        url = url + '?' + urlencode(params)
     logger.debug('Calling URL "{}"'.format(url))
+
     req = urllib2.Request(url, headers=HEADERS)
     try:
-        response = urllib2.urlopen(req, timeout=10)  # 设置超时为 1 秒
+        response = urllib2.urlopen(req, timeout=10)  # 设置超时为 10 秒
     except urllib2.URLError as e:
         if hasattr(e, 'reason'):
             logger.debug('Failed to reach the remote site\nReason: {}'.format(e.reason))
         elif hasattr(e, 'code'):
             logger.debug('Remote site unable to fulfill the request\nError code: {}'.format(e.code))
         return default  # 直接返回默认值
-
-    if response is None:
-        return default
 
     # 检查 Content-Type 以确定编码
     content_type = response.headers.get('Content-Type', '')
@@ -66,13 +62,12 @@ def load_info(url, params=None, default=None, resp_type='json', verboselog=False
             resp = json.loads(response.read().decode(encoding))
         except ValueError as e:
             logger.debug('JSON decode error: {}'.format(e))
+            logger.debug('Response content: {}'.format(response.read()))  # 日志记录失败内容
             return default
     else:
         resp = response.read().decode(encoding)
 
     if verboselog:
-        logger.debug('The API response:\n{}'.format(pprint.pformat(resp)))  # 使用 pprint.pformat 进行格式化
+        logger.debug('The API response:\n{}'.format(pformat(resp)))
 
     return resp
-
-
