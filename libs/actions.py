@@ -39,6 +39,9 @@ HANDLE = int(sys.argv[1])  # type: int
 def find_show(title, year=None):
     # type: (Union[Text, bytes], Optional[Text]) -> None
     """Find a show by title"""
+    original_title = title
+    logger.debug('Searching for TV show original_title {}'.format(original_title))
+    logger.debug('Searching for TV show title {} ({})'.format(title, year))
     if not isinstance(title, unicode):
         title = title.decode('utf-8')
     logger.debug('Searching for TV show {} ({})'.format(title, year))
@@ -47,9 +50,10 @@ def find_show(title, year=None):
         encoded_title = title  # 已编码
     else:
         encoded_title = quote(title.encode('utf-8'))  # 编码
+    logger.debug('Searching for TV show encoded_title {}'.format(title))
 
     try:
-        search_results = tmdb.search_show(encoded_title, year)
+        search_results = tmdb.search_show(title, year)
     except Exception as e:
         logger.error('Error searching for show: {}'.format(e))
         return  # 或者其他处理
