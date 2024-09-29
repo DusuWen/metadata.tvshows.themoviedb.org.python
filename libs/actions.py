@@ -206,6 +206,7 @@ def router(paramstring):
     title = params['title']
     if isinstance(title, str):  # 在 Python 2 中，str 是字节字符串
         title = title.decode('utf-8')
+
     if params['action'] == 'find':
         logger.debug('performing find action')
         logger.debug('params title: {}'.format(params['title']))
