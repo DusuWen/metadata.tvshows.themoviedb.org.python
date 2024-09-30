@@ -42,14 +42,18 @@ def load_info(url, params=None, default=None, resp_type='json', verboselog=False
     logger.debug('Calling URL "{}"'.format(url))
 
     req = urllib2.Request(url, headers=HEADERS)
-    try:
-        response = urllib2.urlopen(req, timeout=10)  # 设置超时为 10 秒
-    except urllib2.URLError as e:
-        if hasattr(e, 'reason'):
-            logger.debug('Failed to reach the remote site\nReason: {}'.format(e.reason))
-        elif hasattr(e, 'code'):
-            logger.debug('Remote site unable to fulfill the request\nError code: {}'.format(e.code))
-        return default  # 直接返回默认值
+
+    for attempt in range(2):  # 尝试两次
+        try:
+            response = urllib2.urlopen(req, timeout=30)
+            break  # 如果成功，跳出循环
+        except urllib2.URLError as e:
+            if hasattr(e, 'reason'):
+                logger.debug('Failed to reach the remote site\nReason: {}'.format(e.reason))
+            elif hasattr(e, 'code'):
+                logger.debug('Remote site unable to fulfill the request\nError code: {}'.format(e.code))
+            if attempt == 1:  # 如果是第二次尝试仍然失败
+                return default  # 直接返回默认值
 
     # 检查 Content-Type 以确定编码
     content_type = response.headers.get('Content-Type', '')
@@ -71,3 +75,4 @@ def load_info(url, params=None, default=None, resp_type='json', verboselog=False
         logger.debug('The API response:\n{}'.format(pformat(resp)))
 
     return resp
+
